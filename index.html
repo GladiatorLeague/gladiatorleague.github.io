@@ -1,0 +1,199 @@
+<!DOCTYPE HTML>
+<html>
+<html>
+    <head>
+        <title>Gladiator League</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"> 
+        <meta http-equiv="Content-Language" content="en-us"> 
+        <meta charset="utf-8">
+        <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
+        <link href="/favicon.ico" rel="icon" type="image/x-icon">
+        <link rel="stylesheet" type="text/css" href="css/modified.min.css">
+    </head>
+<body>
+    <style type="text/css">
+        h1.title {
+            border-bottom: none;
+            font-size: 70px;
+            margin-top: 0;
+            color: white;
+        }
+        .hero {
+            text-align: center;
+            background: #444;
+            margin: 0;
+            width: 100%;
+            padding: 50px;
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+            color: #ddd;
+        }
+    </style>
+    <div class="nav" tabindex="-1" onclick="this.focus()">
+        <div class="container">
+            <a class="pagename current" href="/">Gladiator League</a>
+            <a href="http://www.twitch.tv/gladiatorleague">Twitch Channel</a>
+            <a href="#about">About</a>
+        </div>
+    </div>
+    <button class="btn-close btn btn-sm">×</button>
+    <div class="hero">
+        <h1 class="title">Gladiator League</h1>
+        <h3>Live to fight another day</h3>
+    </div>
+    <div class="container">
+        <div>
+            <h2>Gladiator Leaderboard</h2>
+            <p>
+                Top Gladiators sorted by current win streak; if you lose and the crowd does not love your performance, you start from 0. Play well or get out of the way.
+            </p>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Gladiator</th>
+                        <th>LoL Name</th>
+                        <th>Current Win Streak</th>
+                        <th>Wins</th>
+                        <th>Losses</th>
+                    </tr>
+                </thead>
+                <tbody id="gladiators">
+                </tbody>
+            </table>
+        </div>
+        <div>
+            <h2>Betting Leaderboard</h2>
+            <p>
+                Top bettors.
+            </p>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Bettor</th>
+                        <th>GP</th>
+                    </tr>
+                </thead>
+                <tbody id="bettors">
+                </tbody>
+            </table>
+        </div>
+        <div>
+            <h2>Gladiator Manager Leaderboard</h2>
+            <p>
+                Gladiator Managers sorted by win-loss differential.
+            </p>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Gladiator Manager</th>
+                        <th>Wins</th>
+                        <th>Losses</th>
+                    </tr>
+                </thead>
+                <tbody id="managers">
+                </tbody>
+            </table>
+        </div>
+        <div>
+            <h2>Past Gladiator Exhibitions</h2>
+            <p>
+                Log of past featured games with replays, man-of-the-match, etc.
+            </p>
+        </div>
+        <div>
+            <h2>Chat Commands</h2>
+            <p>
+            <a target="_blank" href="http://www.twitch.tv/gladiatorleague">Twitch channel</a> chat commands.
+                <p>Spectator:</p>
+                <ul><li>!up [gladiator name] [game name] (e.g., "!up gladiatorleague")</li>
+                <li>!down [gladiator name] [game name] (e.g., "!down gladiatorleague")</li>
+                <li>!bet [amount] [odds] [wager description] (e.g., "!bet 10 5-1 gladiatorleague takes first blood")</li>
+                <li>!take [wager id] (e.g., "!take 15")</li></ul>
+                <p>Gladiator:</p>
+                <ul><li>!available [LoL username] (e.g., "!available gladiatorleague")</li></ul>
+                <p>Manager:</p>
+                <ul><li>!challenge [manager name] [game name] (e.g., "!challenge gladiatorleague game1")</li>
+                <li>!pick [gladiator name] [game name] (e.g., "!pick gladiatorleague game1")</li>
+                <li>!win [name of winning manager] [game name] (e.g., "!win gladiatorleague game1")</li>
+                <li>!result [wager id] [name of winning bettor] (e.g., "!result 15 gladiatorleague")</li>
+                <li>!cancel [wager id] [reason] (e.g., "!cancel 15 game was canceled")</li></ul>
+            </p>
+        </div>
+        <div>
+            <a id="about"><h2>About</h2></a>
+            <p>
+                League of Legends is a great game with a frustrating ranking experience; Gladiator League makes it better.
+            </p>
+            <p>
+            For Gladiators who want the inhouse feel and dislike losing rank when carrying heavy teams.
+            <ul>
+                <li>Your rank here is based on your ability to play well. If you lose, spectators can vote to preserve your current win streak.</li>
+                <li>You only get to play if a Gladiator Manager selects you for a match, so play well and be picked more often.</li>
+            </ul>
+            </p>
+            <p>
+            For Gladiator Managers who like fantasy leagues, scouting talent, and coaching teams.
+            <ul>
+                <li>Pick from the top Gladiators or recruit unknown talent.</li>
+                <li>League play against other Gladiator Managers.</li>
+            </ul>
+            </p>
+        </div>
+    </div>
+    <script>
+        function read(file, callback) {
+            var request = new XMLHttpRequest();
+            request.open("GET", file, true);
+            request.send(null);
+            request.onreadystatechange = function() {
+                if (request.readyState == 4) {
+                    callback(request.responseText);
+                }
+            };
+        }
+        read("playerstate.json", function(data) {
+            var s = "";
+            var p = JSON.parse(data);
+            var glad_array = Object.keys(p.g).map(function(k) {
+                p.g[k].twitch = k;
+                return p.g[k];
+            }).sort(function(a, b) {
+                return a.streak < b.streak;
+            });
+            for(var i = 0; i < glad_array.length; i++) {
+                s += '<tr><td><a target="_blank" href="http://www.twitch.tv/' + glad_array[i].twitch + '">' + glad_array[i].twitch + '</a></td><td><a target="_blank" href="http://www.lolking.net/search?name=' + encodeURI(glad_array[i].name) +'&region=NA">' + glad_array[i].name + '</a></td><td>' + glad_array[i].streak + '</td><td>' + glad_array[i].w + '</td><td>' + glad_array[i].l + '</td></tr>';
+            }
+            if(s.length > 0) { 
+                document.getElementById("gladiators").innerHTML = s;
+            }
+            s = "";
+            var bet_array = Object.keys(p.b).map(function(k) {
+                p.b[k].twitch = k;
+                return p.b[k];
+            }).sort(function(a, b) {
+                return a.gp < b.gp;
+            });
+            for(var i = 0; i < bet_array.length; i++) {
+                s += '<tr><td><a target="_blank" href="http://www.twitch.tv/' + bet_array[i].twitch + '">' + bet_array[i].twitch + '</a></td><td>' + bet_array[i].gp + '</td></tr>';
+            }
+            if(s.length > 0) { 
+                document.getElementById("bettors").innerHTML = s;
+            }
+            s = "";
+            var mgr_array = Object.keys(p.m).map(function(k) {
+                p.m[k].twitch = k;
+                return p.m[k];
+            }).sort(function(a, b) {
+                return (a.w - a.l) < (b.w - b.l);
+            });
+            for(var i = 0; i < mgr_array.length; i++) {
+                s += '<tr><td><a target="_blank" href="http://www.twitch.tv/' + mgr_array[i].twitch + '">' + mgr_array[i].twitch + '</a></td><td>' + mgr_array[i].w + '</td><td>' + mgr_array[i].l + '</td></tr>';
+            }
+            if(s.length > 0) { 
+                document.getElementById("managers").innerHTML = s;
+            }
+        });
+    </script>
+</body>
+</html>
